@@ -7,7 +7,7 @@ Python 3.7+ is required.
 ```
 git clone https://github.com/AntonYermilov/article-writing-assistant.git
 cd article-writing-assistant
-pip3 install -r requirements.txt
+cat requirements.txt | xargs -n 1 -L 1 pip3 install
 ```
 
 ## Usage
