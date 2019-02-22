@@ -19,7 +19,7 @@ In order to fit your own embedding model you may run
 python3 fit.py --model {model} --name {model_name} --corpus {corpus} --params '{params in json format}'
 ```
 
-Here `model` corresponds to the name of the algorithm to fit embeddings, `model_name` is the name of a model to be saved,
+Here `model` corresponds to the name of the algorithm to fit embeddings, `model_name` is a name of the model to be saved,
 and `corpus` is a name of the corpus of texts to be used for fitting embeddings.
 
 As soon as the model is fitted it would be saved in the _.vec_ format under the specified name.
