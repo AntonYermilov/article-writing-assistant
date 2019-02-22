@@ -2,7 +2,6 @@ numpy
 cython
 fasttext
 pandas
-https://github.com/JonathanRaiman/glove/archive/master.zip
 faiss-prebuilt
 requests
 gensim
