@@ -17,7 +17,7 @@ def download_gz(url: str, path: Path):
     with gzip.open(tmp, 'rb') as src:
         with path.open('wb') as dst:
             shutil.copyfileobj(src, dst)
-    tmp.rmdir()
+    tmp.unlink()
 
 
 class AttributeDict(dict):

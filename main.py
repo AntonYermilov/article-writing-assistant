@@ -9,7 +9,7 @@ def run():
     dataset = datasets.nips_papers.load()
     assert dataset is not None
     print('Loading model...', file=sys.stderr)
-    model = models.fasttext_en.load()
+    model = models.glove_nips.load()
     assert model is not None
     print('Creating index...', file=sys.stderr)
     index = dataset.apply_model(model)
@@ -19,10 +19,12 @@ def run():
     neighbours = 5
     while True:
         text = sys.stdin.readline()
-        query = np.array([text2vec(text, model)], dtype=np.float32)
+        query = np.array([text2vec(sentence, model, normalize=False) for sentence in text.split('.')], dtype=np.float32)
         D, I = index.search(query, neighbours)
-        for i in I[0]:
-            print(dataset.get_sentence(i))
+        for i in I:
+            for j in i:
+               print(dataset.get_sentence(j))
+            print()
 
 
 if __name__ == '__main__':

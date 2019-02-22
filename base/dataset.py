@@ -22,13 +22,17 @@ class Dataset:
         dataset_size = len(self.sentences)
         dataset = np.zeros((dataset_size, dim), dtype=np.float32)
         for i, sentence in enumerate(self.sentences):
-            dataset[i] = text2vec(sentence, model)
+            dataset[i] = text2vec(sentence, model, normalize=False)
         index = IndexFlatL2(dim)
         index.add(dataset)
         return index
 
     def get_sentence(self, index: int) -> str:
         return self.sentences[index]
+
+    def save(self, path: Path):
+        with path.open('w') as out:
+            out.write('.'.join(self.sentences))
 
 
 class RawDataset(ABC):
@@ -52,5 +56,5 @@ class RawDataset(ABC):
 
 class NIPSPapersDataset(RawDataset):
     def _load(self) -> str:
-        df = pd.read_table(self.path, compression='gzip', sep=',')
+        df = pd.read_csv(self.path, compression='gzip', sep=',')
         return ' '.join(df['paper_text'])
