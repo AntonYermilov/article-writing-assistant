@@ -1,4 +1,5 @@
 from base import datasets
+from embedding.model import Model
 from pathlib import Path
 import subprocess
 
@@ -8,7 +9,7 @@ JAR_FOLDER = Path('resources', 'jar').absolute()
 TEMP_FOLDER = Path('tmp').absolute()
 
 
-class Glove:
+class Glove(Model):
     def __init__(self,
                  corpus_name: str,
                  model_name: str,
@@ -19,8 +20,7 @@ class Glove:
                  window_left: int = 15,
                  window_right: int = 15,
                  verbose: bool = False):
-        self.corpus_name = corpus_name
-        self.model_name = model_name
+        super().__init__(corpus_name, model_name)
         self.dim = dim
         self.min_freq = min_freq
         self.epochs = epochs
