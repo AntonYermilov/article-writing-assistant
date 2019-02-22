@@ -12,17 +12,20 @@ cat requirements.txt | xargs -n 1 -L 1 pip3 install
 
 ## Usage
 
+### Fitting embeddings
+
+You may use `fit.py` in order to fit your own embedding model.
+
+Currently we support the following options:
+
+* `--model MODEL` – the name of the algorithm to fit embeddings
+* `--name MODEL_NAME` – the name of the model to be saved in _.vec_ format
+* `--corpus CORPUS` – the name of the corpus of texts to be used for fitting embeddings
+* `--params PARAMS` – parameters of the algorithm in JSON format
+
+### Interaction
+
 **TBD**
-
-In order to fit your own embedding model you may run
-```
-python3 fit.py --model {model} --name {model_name} --corpus {corpus} --params '{params in json format}'
-```
-
-Here `model` corresponds to the name of the algorithm to fit embeddings, `model_name` is a name of the model to be saved,
-and `corpus` is a name of the corpus of texts to be used for fitting embeddings.
-
-As soon as the model is fitted it would be saved in the _.vec_ format under the specified name.
 
 ## Examples
 
@@ -39,6 +42,14 @@ Currently we support the following models:
 Currently we support the following corpuses of texts:
 
 * nips-papers
+
+## Embeddings
+
+Currently we support the following pretrained embeddings:
+
+* `fasttext_en`
+
+**TBD**
 
 ## License
 [MIT](LICENCE)
