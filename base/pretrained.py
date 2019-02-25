@@ -7,25 +7,25 @@ MODEL_FOLDER = Path('resources', 'models')
 
 
 class PretrainedModel:
-    def __init__(self, name: str):
-        self.name = name
+    def __init__(self, path: str):
+        self.path = Path(path)
 
     def load(self) -> KeyedVectors:
-        model = MODEL_FOLDER / self.name
-        return KeyedVectors.load_word2vec_format(str(model))
+        if not self.path.exists():
+            raise RuntimeError(f'Embedding model {str(self.path)} does not exist!')
+        return KeyedVectors.load_word2vec_format(str(self.path))
 
 
 class PretrainedFastTextModel(PretrainedModel):
     def __init__(self, name: str, url: str):
-        super().__init__(name)
+        super().__init__(str(MODEL_FOLDER / name))
         self.url = f'https://dl.fbaipublicfiles.com/fasttext/vectors-crawl/{url}'
 
     def load(self) -> KeyedVectors:
         if not MODEL_FOLDER.exists:
             MODEL_FOLDER.mkdir()
 
-        model = MODEL_FOLDER / self.name
-        if not model.exists():
-            download_gz(self.url, model)
+        if not self.path.exists():
+            download_gz(self.url, self.path)
 
-        return super().load()
+        return KeyedVectors.load_word2vec_format(str(self.path))

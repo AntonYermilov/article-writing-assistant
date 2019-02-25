@@ -17,7 +17,7 @@ class Dataset:
     def __init__(self, sentences: list):
         self.sentences = sentences
 
-    def apply_model(self, model: KeyedVectors) -> IndexFlatL2:
+    def build_index(self, model: KeyedVectors) -> IndexFlatL2:
         dim = model.vector_size
         dataset_size = len(self.sentences)
         dataset = np.zeros((dataset_size, dim), dtype=np.float32)
