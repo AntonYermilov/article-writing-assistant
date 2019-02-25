@@ -30,7 +30,7 @@ of texts, which are the nearest to the sentences you write to the console.
 
 * `--corpus CORPUS` – the name of the corpus of texts to be used for finding similar sentences
 * `--embedding EMBEDDING_MODEL` – either a name of pretrained embedding model, or a path to the existing model in _.vec_ format
-* `--neighbours` – number of most similar sentences to be printed
+* `--neighbours NEIGHBOURS` – number of most similar sentences to be printed
 
 ## Examples
 
