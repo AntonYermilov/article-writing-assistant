@@ -1,3 +1,4 @@
+allennlp
 numpy
 cython
 fasttext

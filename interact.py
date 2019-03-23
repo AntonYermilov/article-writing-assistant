@@ -1,9 +1,9 @@
 import sys
 import argparse
-import numpy as np
+import time
 from base import embeddings, datasets
-from base.pretrained import PretrainedModel
-from base.textutils import text2vec
+from base.data_embedding_filter import DataEmbeddingFilter
+from base.nearest_search import KNN, Faiss
 
 
 def get_config():
@@ -17,6 +17,7 @@ def get_config():
 
 if __name__ == '__main__':
     config = get_config()
+    start_time = time.time()
 
     corpus_name = config.corpus.lower()
     if corpus_name not in datasets:
@@ -26,20 +27,28 @@ if __name__ == '__main__':
     if embedding in embeddings:
         embedding = embeddings[embedding]
     else:
-        embedding = PretrainedModel(embedding)
+        raise ValueError(f'Embedding {embedding} does not exist!')
+        # embedding = GensimModel(embedding)
 
     neighbours = config.neighbours
     if neighbours < 1:
         raise ValueError(f'Invalid number of neighbours: {neighbours}')
 
-    print('Loading dataset...', file=sys.stderr)
-    corpus = datasets[corpus_name].load()
+    print('Loading dataset...', file=sys.stderr, end='')
+    corpus = datasets[corpus_name]
+    corpus.load()
+    print(f" {(time.time() - start_time)} seconds", file=sys.stderr)
 
-    print('Loading embedding model...', file=sys.stderr)
-    model = embedding.load()
+    print('Loading embedding model...', file=sys.stderr, end='')
+    embedding.load()
+    print(f" {(time.time() - start_time)} seconds", file=sys.stderr)
 
-    print('Creating index...', file=sys.stderr)
-    index = corpus.build_index(model)
+    nearest_searcher = Faiss(embedding.dim())
+
+    print('Creating index...', file=sys.stderr, end='')
+    data_filter = DataEmbeddingFilter(corpus, embedding, nearest_searcher)
+    data_filter.build_index()
+    print(f" {(time.time() - start_time)} seconds", file=sys.stderr)
 
     print('Done', file=sys.stderr)
 
@@ -48,14 +57,12 @@ if __name__ == '__main__':
         sys.stdout.flush()
 
         text = sys.stdin.readline()
-        sentences = list(filter(lambda s : not s.isspace(), text.split('.')))
+        sentences = list(filter(lambda s: not s.isspace(), text.split('.')))
         if len(sentences) == 0:
             continue
 
-        query = np.array([text2vec(sentence, model, normalize=False) for sentence in sentences], dtype=np.float32)
-        D, I = index.search(query, neighbours)
-        for n, i in enumerate(I):
-            for j in i:
-               print(corpus.get_sentence(j))
-            if n + 1 == len(I):
-                print()
+        for sentence in sentences:
+            print(f"nearest for \"{sentence}\":")
+            for nearest in data_filter.filter(sentence, neighbours):
+                print(nearest)
+            print()

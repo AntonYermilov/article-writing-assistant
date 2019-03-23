@@ -9,7 +9,7 @@ def get_config():
     parser.add_argument('--model', type=str, required=True, help='model to fit')
     parser.add_argument('--name', type=str, required=True, help='name of the model to save')
     parser.add_argument('--corpus', type=str, required=True, help='corpus of texts')
-    parser.add_argument('--params', type=str, default='', help='parameters of model in json format')
+    parser.add_argument('--params', type=str, default='{}', help='parameters of model in json format')
     return parser.parse_args()
 
 

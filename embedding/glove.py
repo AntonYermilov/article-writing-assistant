@@ -34,7 +34,7 @@ class Glove(Model):
         if not TEMP_FOLDER.exists():
             TEMP_FOLDER.mkdir()
 
-        if not self.corpus_name in datasets.keys():
+        if self.corpus_name not in datasets.keys():
             raise RuntimeError(f'Corpus {self.corpus_name} is not supported!')
 
         dataset_path = TEMP_FOLDER / 'dataset.txt'
