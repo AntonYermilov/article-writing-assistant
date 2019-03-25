@@ -13,8 +13,7 @@ class DataEmbeddingFilter:
 
     def build_index(self):
         dim = self.embedder.dim()
-        size = 10000
-        sentences = self.dataset.get()[:size]
+        sentences = self.dataset.get()
         print("dataset size", len(sentences))
         dataset_size = len(sentences)
         dataset = np.zeros((dataset_size, dim), dtype=np.float32)
@@ -37,7 +36,7 @@ class DataEmbeddingFilter:
             vec /= np.linalg.norm(vec)
         return vec
 
-    def filter(self, sentence: str, neighbours: int=1) -> List[str]:
+    def search(self, sentence: str, neighbours: int=1) -> List[str]:
         query = np.array([self.text2vec(sentence, normalize=False)], dtype=np.float32)
         inds = self.searcher.search(query, neighbours)
         return [self.dataset.sentences[ind] for ind in inds]

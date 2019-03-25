@@ -81,13 +81,14 @@ Currently we support the following models:
 
 Currently we support the following corpuses of texts:
 
-* `nips-papers`
+* `nips_papers`
 
 ## Embeddings
 
 Currently we support the following pretrained embeddings:
 
-* `fasttext_en`
+* `fasttext_en_300`
+* `elmo`
 
 **TBD**
 

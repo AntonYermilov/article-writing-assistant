@@ -28,33 +28,12 @@ class Embedder(ABC):
         pass
 
 
-# class GensimModel(Embedder):
-#     def __init__(self, name: str):
-#         self.path = Path(str(MODEL_FOLDER / name))
-#         self.keyed_vectors = None
-#
-#     def load(self):
-#         self.keyed_vectors = KeyedVectors.load_word2vec_format(str(self.path))
-#
-#     def embedding(self, sentence: List[str], word_ind: int) -> List[int]:
-#         return self.keyed_vectors.get_vector(sentence[word_ind])
-#
-#     def dim(self) -> int:
-#         return self.keyed_vectors.vector_size
-
-
-class FastText(Embedder):
-    def __init__(self, name: str, url: str):
+class GensimModel(Embedder):
+    def __init__(self, name: str):
         self.path = Path(str(MODEL_FOLDER / name))
-        self.url = f'https://dl.fbaipublicfiles.com/fasttext/vectors-crawl/{url}'
         self.keyed_vectors = None
 
     def load(self):
-        if not MODEL_FOLDER.exists:
-            MODEL_FOLDER.mkdir()
-
-        if not self.path.exists():
-            download_gz(self.url, self.path)
         self.keyed_vectors = KeyedVectors.load_word2vec_format(str(self.path))
 
     def embedding(self, sentence: List[str], word_ind: int) -> Union[np.ndarray, type(None)]:
@@ -71,6 +50,20 @@ class FastText(Embedder):
 
     def dim(self) -> int:
         return self.keyed_vectors.vector_size
+
+
+class FastText(GensimModel):
+    def __init__(self, name: str, url: str):
+        super().__init__(name)
+        self.url = f'https://dl.fbaipublicfiles.com/fasttext/vectors-crawl/{url}'
+
+    def load(self):
+        if not MODEL_FOLDER.exists:
+            MODEL_FOLDER.mkdir()
+
+        if not self.path.exists():
+            download_gz(self.url, self.path)
+        self.keyed_vectors = KeyedVectors.load_word2vec_format(str(self.path))
 
 
 class Elmo(Embedder):

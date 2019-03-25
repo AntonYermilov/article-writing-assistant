@@ -1,18 +1,37 @@
 import sys
 import argparse
 import time
-from base import embeddings, datasets
+from base import embeddings, datasets, searchers
 from base.data_embedding_filter import DataEmbeddingFilter
-from base.nearest_search import KNN, Faiss
+from evaluation.metrics import bleu_on_corpus
 
 
 def get_config():
     parser = argparse.ArgumentParser('Finding nearest sentences from the specified corpus of texts')
     parser.add_argument('--corpus', type=str, required=True, help='corpus of texts')
+    parser.add_argument('--size', type=int, default=None, required=False, help='number of sentences')
     parser.add_argument('--embedding', type=str, required=True, help='either a name of pretrained model' \
                                                                      'or a path to the existing .vec model')
     parser.add_argument('--neighbours', type=int, default=1, help='number of nearest sentences from corpus')
+    parser.add_argument('--searcher', type=str, default="Faiss", help='')
     return parser.parse_args()
+
+
+def interact(data_filter):
+    while True:
+        sys.stdout.write('> ')
+        sys.stdout.flush()
+
+        text = sys.stdin.readline()
+        sentences = list(filter(lambda s: not s.isspace(), text.split('.')))
+        if len(sentences) == 0:
+            continue
+
+        for sentence in sentences:
+            print(f"nearest for \"{sentence}\":")
+            for nearest in data_filter.search(sentence, neighbours):
+                print(nearest)
+            print()
 
 
 if __name__ == '__main__':
@@ -30,20 +49,25 @@ if __name__ == '__main__':
         raise ValueError(f'Embedding {embedding} does not exist!')
         # embedding = GensimModel(embedding)
 
+    searcher = config.searcher.lower()
+    if searcher not in searchers:
+        raise ValueError(f'Searcher {searcher} does not exist!')
+
     neighbours = config.neighbours
     if neighbours < 1:
         raise ValueError(f'Invalid number of neighbours: {neighbours}')
+    size = config.size
 
     print('Loading dataset...', file=sys.stderr, end='')
     corpus = datasets[corpus_name]
-    corpus.load()
+    corpus.load(size)
     print(f" {(time.time() - start_time)} seconds", file=sys.stderr)
 
     print('Loading embedding model...', file=sys.stderr, end='')
     embedding.load()
     print(f" {(time.time() - start_time)} seconds", file=sys.stderr)
 
-    nearest_searcher = Faiss(embedding.dim())
+    nearest_searcher = searchers[searcher](embedding.dim())
 
     print('Creating index...', file=sys.stderr, end='')
     data_filter = DataEmbeddingFilter(corpus, embedding, nearest_searcher)
@@ -52,17 +76,6 @@ if __name__ == '__main__':
 
     print('Done', file=sys.stderr)
 
-    while True:
-        sys.stdout.write('> ')
-        sys.stdout.flush()
+    print(f"Bleu on corpus: {bleu_on_corpus(corpus.get(), data_filter)}")
 
-        text = sys.stdin.readline()
-        sentences = list(filter(lambda s: not s.isspace(), text.split('.')))
-        if len(sentences) == 0:
-            continue
-
-        for sentence in sentences:
-            print(f"nearest for \"{sentence}\":")
-            for nearest in data_filter.filter(sentence, neighbours):
-                print(nearest)
-            print()
+    interact(data_filter)

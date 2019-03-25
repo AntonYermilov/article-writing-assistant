@@ -16,10 +16,12 @@ class RawDataset(ABC):
         self.path = DATASET_FOLDER / name
         self.sentences = None
 
-    def load(self):
+    def load(self, size=None):
         texts = self._load()
         paper_text_sentences = RawDataset._tokenize(texts)
         self.sentences = list(set(filter(lambda x: len(x) > 10, map(lambda x: x.strip(), paper_text_sentences))))
+        if size is not None:
+            self.sentences = self.sentences[:size]
         print("len(sentences)", len(self.sentences))
 
     @abstractmethod
