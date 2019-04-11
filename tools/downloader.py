@@ -18,8 +18,3 @@ def download_gz(url: str, path: Path):
         with path.open('wb') as dst:
             shutil.copyfileobj(src, dst)
     tmp.unlink()
-
-
-class AttributeDict(dict):
-    __getattr__ = dict.__getitem__
-    __setattr__ = dict.__setitem__

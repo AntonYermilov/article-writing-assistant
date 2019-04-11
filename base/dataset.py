@@ -5,7 +5,7 @@ from typing import List
 
 import pandas as pd
 
-from .textutils import normalize_text
+from tools.textutils import normalize_text
 
 
 DATASET_FOLDER = Path('resources', 'datasets')

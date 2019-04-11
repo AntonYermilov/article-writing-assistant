@@ -1,5 +1,5 @@
 from .glove import Glove
-from base.utils import AttributeDict
+from tools.utils import AttributeDict
 
 models = AttributeDict()
 models.glove = Glove

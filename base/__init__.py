@@ -1,5 +1,5 @@
 from base.nearest_search import Faiss, KNN
-from .utils import AttributeDict
+from tools import AttributeDict
 from .embedder import *
 from .dataset import NIPSPapersDataset
 

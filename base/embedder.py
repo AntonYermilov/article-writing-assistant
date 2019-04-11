@@ -4,7 +4,7 @@ import numpy as np
 from gensim.models import KeyedVectors
 from allennlp.commands.elmo import ElmoEmbedder
 from pathlib import Path
-from .utils import download_gz
+from tools.downloader import download_gz
 
 
 MODEL_FOLDER = Path('resources', 'models')
@@ -16,8 +16,11 @@ class Embedder(ABC):
         pass
 
     @abstractmethod
-    def embedding(self, sentence: List[str], word_ind: int) -> Union[np.ndarray, type(None)]:
+    def word_embedding(self, word: str) -> Union[np.ndarray, type(None)]:
         pass
+
+    def embedding(self, sentence: List[str], word_ind: int) -> Union[np.ndarray, type(None)]:
+        return self.word_embedding(sentence[word_ind])
 
     @abstractmethod
     def embeddings(self, sentence: List[str]) -> Union[np.ndarray, type(None)]:
@@ -30,23 +33,21 @@ class Embedder(ABC):
 
 class GensimModel(Embedder):
     def __init__(self, name: str):
-        self.path = Path(str(MODEL_FOLDER / name))
+        self.path = MODEL_FOLDER / name
         self.keyed_vectors = None
 
     def load(self):
         self.keyed_vectors = KeyedVectors.load_word2vec_format(str(self.path))
 
-    def embedding(self, sentence: List[str], word_ind: int) -> Union[np.ndarray, type(None)]:
-        if sentence[word_ind] in self.keyed_vectors.vocab:
-            return self.keyed_vectors.get_vector(sentence[word_ind])
+    def word_embedding(self, word: str) -> Union[np.ndarray, type(None)]:
+        if word in self.keyed_vectors.vocab:
+            return self.keyed_vectors.get_vector(word)
         return None
 
     def embeddings(self, sentence: List[str]) -> Union[np.ndarray, type(None)]:
-        ans = np.array([self.keyed_vectors.get_vector(sentence[word_ind]) for word_ind in range(len(sentence))
-                        if sentence[word_ind] in self.keyed_vectors.vocab])
-        if ans.shape[0] == 0:
-            return None
-        return ans
+        emb = np.array([self.embedding(sentence, ind) for ind in range(len(sentence))])
+        emb = emb[emb != np.array(None)]
+        return emb if emb.shape[0] != 0 else None
 
     def dim(self) -> int:
         return self.keyed_vectors.vector_size
@@ -80,6 +81,10 @@ class Elmo(Embedder):
 
     def load(self):
         self.elmo = ElmoEmbedder(self.options_file, self.weight_file)
+
+    def word_embedding(self, word: str):
+        # TODO
+        pass
 
     def embedding(self, sentence: List[str], word_ind: int) -> np.ndarray:
         if sentence != self.cache[0]:

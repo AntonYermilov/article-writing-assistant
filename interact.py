@@ -61,21 +61,26 @@ if __name__ == '__main__':
     print('Loading dataset...', file=sys.stderr, end='')
     corpus = datasets[corpus_name]
     corpus.load(size)
-    print(f" {(time.time() - start_time)} seconds", file=sys.stderr)
+    print(f" {(time.time() - start_time):.2f} seconds", file=sys.stderr)
+    start_time = time.time()
 
     print('Loading embedding model...', file=sys.stderr, end='')
     embedding.load()
-    print(f" {(time.time() - start_time)} seconds", file=sys.stderr)
+    print(f" {(time.time() - start_time):.2f} seconds", file=sys.stderr)
+    start_time = time.time()
 
     nearest_searcher = searchers[searcher](embedding.dim())
 
     print('Creating index...', file=sys.stderr, end='')
     data_filter = DataEmbeddingFilter(corpus, embedding, nearest_searcher)
     data_filter.build_index()
-    print(f" {(time.time() - start_time)} seconds", file=sys.stderr)
+    print(f" {(time.time() - start_time):.2f} seconds", file=sys.stderr)
+    start_time = time.time()
 
     print('Done', file=sys.stderr)
 
+
     print(f"Bleu on corpus: {bleu_on_corpus(corpus.get(), data_filter)}")
+    print(f" {(time.time() - start_time):.2f} seconds", file=sys.stderr)
 
     interact(data_filter)
