@@ -10,7 +10,7 @@ from tools.downloader import download_gz
 MODEL_FOLDER = Path('resources', 'models')
 
 
-class Embedder(ABC):
+class Embedding(ABC):
     @abstractmethod
     def load(self):
         pass
@@ -31,7 +31,7 @@ class Embedder(ABC):
         pass
 
 
-class GensimModel(Embedder):
+class GensimModel(Embedding):
     def __init__(self, name: str):
         self.path = MODEL_FOLDER / name
         self.keyed_vectors = None
@@ -67,7 +67,7 @@ class FastText(GensimModel):
         self.keyed_vectors = KeyedVectors.load_word2vec_format(str(self.path))
 
 
-class Elmo(Embedder):
+class Elmo(Embedding):
     def __init__(self, weight_file, options_file):
         # options_file = "https://s3-us-west-2.amazonaws.com/allennlp/models/elmo/" \
         #                     "2x4096_512_2048cnn_2xhighway/elmo_2x4096_512_2048cnn_2xhighway_options.json"

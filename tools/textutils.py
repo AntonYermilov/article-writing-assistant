@@ -1,5 +1,7 @@
 import re
 import numpy as np
+from typing import List
+from nltk.tokenize import word_tokenize, sent_tokenize
 
 from nltk.corpus import wordnet
 
@@ -11,6 +13,22 @@ def normalize_text(text: str) -> str:
     text = text.replace('&', ' and ')
     text = text.replace('@', ' at ')
     return text
+
+
+def remove_string_special_characters(text: str) -> str:
+    text = re.sub('[^\w\s]', '', text)
+    text = re.sub('_', '', text)
+    text = re.sub('\s+', ' ', text)
+    return text.strip()
+
+
+def tokenize_to_words(text: str) -> List[str]:
+    return word_tokenize(text, language='english')
+
+
+def tokenize_to_sentences(text: str) -> np.ndarray[int]:
+    text = normalize_text(text)
+    return np.array(map(str.strip, re.split(r'[ .?!]+', text)))
 
 
 def spoil_text(text: str, modify_articles_rate=0.5, modify_prepositions_rate=0.25,

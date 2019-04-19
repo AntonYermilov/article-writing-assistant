@@ -1,9 +1,9 @@
 from typing import List, Dict
 import numpy as np
-from base.embedder import Embedder
+from base.embedding import Embedding
 
 
-def sentence2vec(sentence: List[str], embedder: Embedder, normalize=False):
+def sentence2vec(sentence: List[str], embedder: Embedding, normalize=False):
     sentence = [embedder.word_embedding(word) for word in sentence]
     vec = sum(sentence[sentence != np.array(None)])
     if normalize:
@@ -11,7 +11,7 @@ def sentence2vec(sentence: List[str], embedder: Embedder, normalize=False):
     return vec
 
 
-def sentence2vec_idf(sentence: List[str], embedder: Embedder, idf: Dict[str, float], normalize=False):
+def sentence2vec_idf(sentence: List[str], embedder: Embedding, idf: Dict[str, float], normalize=False):
     # TODO word from sentences could not be found in dataset
     idf = np.array([idf[word.lower()] for word in sentence])
     sentence = np.array([embedder.word_embedding(word) for word in sentence])

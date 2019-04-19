@@ -22,7 +22,7 @@ def interact(data_filter):
         sys.stdout.write('> ')
         sys.stdout.flush()
 
-        text = sys.stdin.readline()
+        text = sys.stdin.readline().strip()
         sentences = list(filter(lambda s: not s.isspace(), text.split('.')))
         if len(sentences) == 0:
             continue
@@ -78,7 +78,6 @@ if __name__ == '__main__':
     start_time = time.time()
 
     print('Done', file=sys.stderr)
-
 
     print(f"Bleu on corpus: {bleu_on_corpus(corpus.get(), data_filter)}")
     print(f" {(time.time() - start_time):.2f} seconds", file=sys.stderr)
