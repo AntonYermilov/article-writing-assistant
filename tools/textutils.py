@@ -26,7 +26,7 @@ def tokenize_to_words(text: str) -> List[str]:
     return word_tokenize(text, language='english')
 
 
-def tokenize_to_sentences(text: str) -> np.ndarray[int]:
+def tokenize_to_sentences(text: str) -> np.array:
     text = normalize_text(text)
     return np.array(map(str.strip, re.split(r'[ .?!]+', text)))
 

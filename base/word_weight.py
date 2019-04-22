@@ -20,7 +20,6 @@ class WordWeight(ABC):
 class StandardWordWeight(WordWeight):
     def __init__(self, dataset: Dataset):
         super().__init__(dataset)
-        pass
 
     def get(self, word: str) -> np.float32:
         return np.float32(1)
@@ -29,9 +28,10 @@ class StandardWordWeight(WordWeight):
 class IDFWordWeight(WordWeight):
     def __init__(self, dataset: Dataset):
         super().__init__(dataset)
-        self.idf = self._idf(dataset.get_docs())
+        self.idf = IDFWordWeight._idf(dataset.get_docs())
 
-    def _idf(self, docs: List[str]) -> Dict[str, np.float32]:
+    @staticmethod
+    def _idf(docs: List[str]) -> Dict[str, np.float32]:
         _idf = {}
         for doc in docs:
             doc = remove_string_special_characters(doc)

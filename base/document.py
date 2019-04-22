@@ -1,4 +1,4 @@
-from typing import Callable, List
+from typing import Callable
 import numpy as np
 
 from .sentence import Sentence

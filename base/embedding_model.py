@@ -1,53 +1,66 @@
 from abc import ABC, abstractmethod
-from typing import List, Union
+from pathlib import Path
 import numpy as np
+
 from gensim.models import KeyedVectors
 from allennlp.commands.elmo import ElmoEmbedder
-from pathlib import Path
+
 from tools.downloader import download_gz
+from .sentence import Sentence
+from .word_weight import WordWeight
 
 
 MODEL_FOLDER = Path('resources', 'models')
 
 
-class Embedding(ABC):
+class EmbeddingModel(ABC):
+    def __init__(self):
+        self.logger = None
+
     @abstractmethod
     def load(self):
         pass
 
     @abstractmethod
-    def word_embedding(self, word: str) -> Union[np.ndarray, type(None)]:
+    def word_embedding(self, word: str) -> np.array:
         pass
 
-    def embedding(self, sentence: List[str], word_ind: int) -> Union[np.ndarray, type(None)]:
-        return self.word_embedding(sentence[word_ind])
+    def sentence_embedding(self, sentence: Sentence, word_weight: WordWeight) -> np.array:
+        embedding = None
+        for word in sentence.get_tokens_by_indices(sentence.get_alphabetic_tokens()):
+            word_embedding = self.word_embedding(word) * word_weight.get(word)
+            embedding = embedding + word_embedding if embedding is not None else word_embedding
+        return embedding if embedding is not None else np.zeros(self.dim(), dtype=np.float)
 
-    @abstractmethod
-    def embeddings(self, sentence: List[str]) -> Union[np.ndarray, type(None)]:
-        pass
+    def word_list_embedding(self, word_list: np.array, word_weight: WordWeight) -> np.array:
+        return self.sentence_embedding(Sentence(word_list), word_weight)
+
+    def word_embeddings_from_sentence(self, sentence: Sentence) -> np.ndarray:
+        tokens = sentence.get_tokens_by_indices(sentence.get_alphabetic_tokens())
+        return np.array([self.word_embedding(token) for token in tokens], dtype=np.float)
+
+    def word_embeddings_from_word_list(self, word_list: np.array) -> np.array:
+        return self.word_embeddings_from_sentence(Sentence(word_list))
 
     @abstractmethod
     def dim(self) -> int:
         pass
 
 
-class GensimModel(Embedding):
+class GensimModel(EmbeddingModel):
     def __init__(self, name: str):
+        super().__init__()
         self.path = MODEL_FOLDER / name
         self.keyed_vectors = None
 
     def load(self):
         self.keyed_vectors = KeyedVectors.load_word2vec_format(str(self.path))
+        return self
 
-    def word_embedding(self, word: str) -> Union[np.ndarray, type(None)]:
+    def word_embedding(self, word: str) -> np.array:
         if word in self.keyed_vectors.vocab:
             return self.keyed_vectors.get_vector(word)
-        return None
-
-    def embeddings(self, sentence: List[str]) -> Union[np.ndarray, type(None)]:
-        emb = np.array([self.embedding(sentence, ind) for ind in range(len(sentence))])
-        emb = emb[emb != np.array(None)]
-        return emb if emb.shape[0] != 0 else None
+        return np.zeros(self.dim())
 
     def dim(self) -> int:
         return self.keyed_vectors.vector_size
@@ -65,9 +78,25 @@ class FastText(GensimModel):
         if not self.path.exists():
             download_gz(self.url, self.path)
         self.keyed_vectors = KeyedVectors.load_word2vec_format(str(self.path))
+        return self
 
 
-class Elmo(Embedding):
+class Elmo(EmbeddingModel):
+    def __init__(self):
+        super().__init__()
+
+    def load(self):
+        pass
+        return self
+
+    def word_embedding(self, word: str) -> np.array:
+        pass
+
+    def dim(self) -> int:
+        pass
+
+"""
+class Elmo(EmbeddingModel):
     def __init__(self, weight_file, options_file):
         # options_file = "https://s3-us-west-2.amazonaws.com/allennlp/models/elmo/" \
         #                     "2x4096_512_2048cnn_2xhighway/elmo_2x4096_512_2048cnn_2xhighway_options.json"
@@ -98,3 +127,4 @@ class Elmo(Embedding):
 
     def dim(self) -> int:
         return 1024
+"""

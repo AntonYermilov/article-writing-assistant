@@ -1,6 +1,6 @@
 from typing import List, Dict
 import numpy as np
-from base.embedding import Embedding
+from base.embedding_model import Embedding
 
 
 def sentence2vec(sentence: List[str], embedder: Embedding, normalize=False):

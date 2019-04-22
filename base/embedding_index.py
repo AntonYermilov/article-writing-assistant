@@ -42,12 +42,15 @@ class Faiss(EmbeddingIndex):
         self.index = faiss.IndexFlatL2(dim)
 
     def build(self, matrix: np.array):
+        # noinspection PyArgumentList
         self.index.add(matrix)
 
     def search_by_matrix(self, matrix: np.array, neighbours: int = 1) -> np.array:
+        # noinspection PyArgumentList
         return self.index.search(matrix, neighbours)[1]
 
     def search_by_vector(self, vector: np.array, neighbours: int = 1) -> np.array:
+        # noinspection PyArgumentList
         return self.index.search(vector, neighbours)[1][0]
 
 
@@ -57,13 +60,17 @@ class FaissHNSW(EmbeddingIndex):
         self.index = faiss.IndexHNSWSQ(dim, faiss.ScalarQuantizer.QT_8bit, 16)
 
     def build(self, matrix: np.array):
+        # noinspection PyArgumentList
         self.index.train(matrix)
         self.index.hnsw.efConstruction = 40
+        # noinspection PyArgumentList
         self.index.add(matrix)
         self.index.hnsw.efSearch = 32
 
     def search_by_matrix(self, matrix: np.array, neighbours: int = 1) -> np.array:
+        # noinspection PyArgumentList
         return self.index.search(matrix, neighbours)[1]
 
     def search_by_vector(self, vector: np.array, neighbours: int = 1) -> np.array:
+        # noinspection PyArgumentList
         return self.index.search(vector, neighbours)[1][0]
