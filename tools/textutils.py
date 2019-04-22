@@ -8,16 +8,15 @@ from nltk.corpus import wordnet
 
 def normalize_text(text: str) -> str:
     text = text.lower()
-    text = re.sub(r'([0123456789\-\+\=\*\<\>\;\:\|\n])', r' ', text)
-    text = re.sub(r'([\'\"\.\(\)\!\?\\\/\,])', r' \1 ', text)
     text = text.replace('&', ' and ')
     text = text.replace('@', ' at ')
-    return text
+    text = re.sub(r'([^\w\s;:,.?!]|_)', r' ', text)
+    text = re.sub('\s+', ' ', text)
+    return text.strip()
 
 
 def remove_string_special_characters(text: str) -> str:
-    text = re.sub('[^\w\s]', '', text)
-    text = re.sub('_', '', text)
+    text = re.sub('([^\w\s]|_)', ' ', text)
     text = re.sub('\s+', ' ', text)
     return text.strip()
 

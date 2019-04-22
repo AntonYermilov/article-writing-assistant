@@ -31,10 +31,10 @@ class IDFWordWeight(WordWeight):
         self.idf = IDFWordWeight._idf(dataset.get_docs())
 
     @staticmethod
-    def _idf(docs: List[str]) -> Dict[str, np.float32]:
+    def _idf(docs: np.array) -> Dict[str, np.float32]:
         _idf = {}
         for doc in docs:
-            doc = remove_string_special_characters(doc)
+            doc = remove_string_special_characters(str(doc))
             words = set(filter(lambda word: word.isalnum(), word_tokenize(doc, language='english')))
             for word in words:
                 word = word.lower()

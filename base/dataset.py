@@ -24,9 +24,9 @@ class Dataset(ABC):
 
     def load(self, sentence_splitter: Callable):
         # noinspection PyTypeChecker
-        self.documents = np.array([Document(document) for document in self._load()])
-        self.sentences = np.array([document.split_to_sentences(sentence_splitter)
-                                   for document in self.documents], dtype=Sentence).reshape(-1)
+        self.documents = np.array([Document(document, normalize=True) for document in self._load()])
+        self.sentences = np.hstack([document.split_to_sentences(sentence_splitter)
+                                   for document in self.documents]).astype(Sentence)
 
     @abstractmethod
     def _load(self) -> np.array:
@@ -45,4 +45,4 @@ class Dataset(ABC):
 class NIPSPapersDataset(Dataset):
     def _load(self) -> np.array:
         df = pd.read_csv(self.path, compression='gzip', sep=',')
-        return df['paper_text'].to_numpy().astype(np.str)[:10]
+        return df['paper_text'].to_numpy().astype(np.str)[:10] # TODO REMOVE CONSTRAINTS!!!

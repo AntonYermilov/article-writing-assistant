@@ -30,4 +30,4 @@ class KGramSplitter(SentenceSplitter):
         alphabetic_tokens = sentence.get_alphabetic_tokens()
         k_grams = len(alphabetic_tokens) - self.k + 1
         result = np.array([alphabetic_tokens[i:i+self.k] for i in range(k_grams)])
-        return result if result.shape[1] == self.k else None
+        return result if result.shape[0] != 0 else None

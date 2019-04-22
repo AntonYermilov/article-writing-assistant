@@ -38,21 +38,16 @@ class Interactor:
         _dataset: Dataset = dataset.nips_papers
         _dataset.load(sentence_splitter=sent_tokenize)
 
-        self.logger.info('Creating embedding index')
-        _embedding_index: EmbeddingIndex = embedding_index.knn()
-
-        self.logger.info('Creating embedding model')
+        self.logger.info('Loading embedding model')
         _embedding_model: EmbeddingModel = embedding_model.glove.load()
 
         self.logger.info('Initializing word weights')
         _word_weights: WordWeight = word_weight.idf_word_weight(_dataset)
 
-        self.logger.info('Creating 5-gram sentence splitter')
-        _sentence_splitter: SentenceSplitter = sentence_splitter.k_gram(5)
-
         self.logger.info('Creating text index')
-        _text_index: TextIndex = TextIndex(_dataset, _embedding_model, _embedding_index,
-                                           _sentence_splitter, _word_weights, self.logger)
+        _text_index: TextIndex = TextIndex(_dataset, _embedding_model, embedding_index.knn(),
+                                           sentence_splitter.k_gram(5), _word_weights, self.logger)
+        _text_index.build()
 
         self.logger.info('Done')
 

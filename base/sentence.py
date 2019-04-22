@@ -15,6 +15,9 @@ class Sentence:
     def __iter__(self):
         return iter(self.tokens)
 
+    def __str__(self):
+        return ' '.join(self.tokens)
+
     def get_tokens_by_indices(self, indices: np.array) -> np.array:
         """
         Returns list of tokens by their indices. All indices should exist!

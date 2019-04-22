@@ -32,10 +32,11 @@ class TextIndex:
                 continue
 
             indexed_parts = np.hstack((np.array([[i] for _ in range(parts.shape[0])]), parts))
-            self.sentences.append(*indexed_parts)
+            self.sentences += list(indexed_parts)
 
-            parts = np.array([self.model.word_list_embedding(part, self.weights) for part in parts], dtype=np.float32)
-            matrix.append(*parts)
+            parts = np.array([self.model.word_list_embedding(sentence.get_tokens_by_indices(part), self.weights)
+                              for part in parts], dtype=np.float32)
+            matrix += list(parts)
         self.sentences, matrix = np.array(self.sentences, dtype=np.int32), np.array(matrix, dtype=np.float32)
 
         self._log(f'Dataset transformation finished. Dataset size: {matrix.shape[0]}')
