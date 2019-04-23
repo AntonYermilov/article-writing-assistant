@@ -76,7 +76,7 @@ class FaissHNSW(EmbeddingIndex):
         self.index_file = index_file
 
         matrix = np.memmap(index_file, dtype=np.float32, mode='r+')
-        matrix.reshape((-1, dim))
+        matrix = matrix.reshape((-1, dim))
 
         self.index = faiss.IndexHNSWSQ(self.dim, faiss.ScalarQuantizer.QT_8bit, 16)
         # noinspection PyArgumentList
