@@ -59,7 +59,7 @@ class Interactor:
         self.logger.info('Creating text index')
         self.text_index = TextIndex(self.dataset, self.embedding_model, self.embedding_index,
                                     self.sentence_splitter, self.word_weights, self.logger)
-        self.text_index.build(index_file=Path('resources', 'index', 'v001'))
+        self.text_index.build(index_filename='v002')
 
         self.logger.info('Initialization completed successfully')
 
@@ -93,8 +93,8 @@ if __name__ == '__main__':
         _dataset=dataset.nips_papers,
         _embedding_model=embedding_model.glove,
         # _embedding_index=embedding_index.knn,
-        # _embedding_index=embedding_index.faiss,
-        _embedding_index=embedding_index.faiss_hnsw,
+        _embedding_index=embedding_index.faiss,
+        # _embedding_index=embedding_index.faiss_hnsw,
         _sentence_splitter=sentence_splitter.five_gram,
         _word_weights=word_weight.idf_word_weight
     ).interact()

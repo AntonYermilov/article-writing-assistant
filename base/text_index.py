@@ -31,7 +31,16 @@ class TextIndex:
         with index_file.open(mode='ab') as out:
             out.write(vectors)
 
-    def _build_new_index(self, index_file: Path):
+    def build(self, index_filename: str):
+        index_file = TextIndex.INDEX_DIR / index_filename
+        is_new_index = not index_file.exists()
+        index_file.touch()
+
+        if is_new_index:
+            self._log(f'Creating new index: {index_file}')
+        else:
+            self._log(f'Using existing index: {index_file}')
+
         self.sentences = []
 
         number_of_sentences = len(self.dataset.get_sentences())
@@ -50,34 +59,14 @@ class TextIndex:
 
             vectors = np.array([self.model.word_list_embedding(sentence.get_tokens_by_indices(part), self.weights)
                                 for part in parts], dtype=np.float32)
-            TextIndex._add_vectors_to_index(index_file, vectors)
+            if is_new_index:
+                TextIndex._add_vectors_to_index(index_file, vectors)
 
         self.sentences = np.array(self.sentences, dtype=np.int32)
 
         self._log(f'{number_of_sentences}/{number_of_sentences} sentences processed')
         self._log(f'Dataset size: {self.sentences.shape[0]} tokens')
         self._log(f'Index size: {index_file.stat().st_size / 1024**2:0.2f} MB')
-
-    @staticmethod
-    def _create_new_index_version() -> Path:
-        if not TextIndex.INDEX_DIR.exists():
-            TextIndex.INDEX_DIR.mkdir()
-
-        version = 1
-        while (TextIndex.INDEX_DIR / f'v{version:03}').exists():
-            version += 1
-
-        new_index = TextIndex.INDEX_DIR / f'v{version:03}'
-        new_index.touch()
-        return new_index
-
-    def build(self, index_file=None):
-        if index_file is None:
-            index_file = TextIndex._create_new_index_version()
-            self._log(f'Creating new index: {index_file}')
-            self._build_new_index(index_file)
-        else:
-            self._log(f'Using existing index: {index_file}')
 
         self._log('Creating embedding index')
         self.index.build(index_file, self.model.dim())
