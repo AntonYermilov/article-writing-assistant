@@ -1,11 +1,12 @@
 import numpy as np
 from nltk.tokenize import word_tokenize
+from tools.textutils import normalize_text
 
 
 class Sentence:
     def __init__(self, sentence):
         if isinstance(sentence, str):
-            self.tokens = np.array(word_tokenize(sentence), np.str)
+            self.tokens = np.array(word_tokenize(normalize_text(sentence)), np.str)
         else:
             self.tokens = sentence
 

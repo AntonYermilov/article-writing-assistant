@@ -12,7 +12,7 @@ class SentenceSplitter(ABC):
 
 
 class KGramSplitter(SentenceSplitter):
-    def __init__(self, k):
+    def __init__(self, k: int):
         """
         Creates k-gram splitter for splitting sentences into k-grams
         :param k: k-gram size

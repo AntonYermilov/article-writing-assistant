@@ -37,11 +37,15 @@ class KNN(EmbeddingIndex):
 
 
 class Faiss(EmbeddingIndex):
-    def __init__(self, dim):
+    def __init__(self):
         super().__init__()
-        self.index = faiss.IndexFlatL2(dim)
+        self.dim = None
+        self.index = None
 
     def build(self, matrix: np.array):
+        if self.dim is None:
+            self.dim = matrix.shape[1]
+            self.index = faiss.IndexFlatL2(self.dim)
         # noinspection PyArgumentList
         self.index.add(matrix)
 
@@ -49,17 +53,21 @@ class Faiss(EmbeddingIndex):
         # noinspection PyArgumentList
         return self.index.search(matrix, neighbours)[1]
 
-    def search_by_vector(self, vector: np.array, neighbours: int = 1) -> np.array:
+    def search_by_vector(self, vector: np.array, neighbours: int = 1) -> np.int32:
         # noinspection PyArgumentList
-        return self.index.search(vector, neighbours)[1][0]
+        return self.index.search(vector.reshape(1, -1), neighbours)[1][0]
 
 
 class FaissHNSW(EmbeddingIndex):
-    def __init__(self, dim):
+    def __init__(self):
         super().__init__()
-        self.index = faiss.IndexHNSWSQ(dim, faiss.ScalarQuantizer.QT_8bit, 16)
+        self.dim = None
+        self.index = None
 
     def build(self, matrix: np.array):
+        if self.dim is None:
+            self.dim = matrix.shape[1]
+            self.index = faiss.IndexHNSWSQ(self.dim, faiss.ScalarQuantizer.QT_8bit, 16)
         # noinspection PyArgumentList
         self.index.train(matrix)
         self.index.hnsw.efConstruction = 40
@@ -73,4 +81,4 @@ class FaissHNSW(EmbeddingIndex):
 
     def search_by_vector(self, vector: np.array, neighbours: int = 1) -> np.array:
         # noinspection PyArgumentList
-        return self.index.search(vector, neighbours)[1][0]
+        return self.index.search(vector.reshape(1, -1), neighbours)[1][0]

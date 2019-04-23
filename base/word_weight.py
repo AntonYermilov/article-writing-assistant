@@ -9,7 +9,7 @@ from .dataset import Dataset
 
 class WordWeight(ABC):
     @abstractmethod
-    def __init__(self, dataset: Dataset):
+    def initialize(self, dataset: Dataset):
         pass
 
     @abstractmethod
@@ -18,16 +18,18 @@ class WordWeight(ABC):
 
 
 class StandardWordWeight(WordWeight):
-    def __init__(self, dataset: Dataset):
-        super().__init__(dataset)
+    def initialize(self, dataset: Dataset):
+        pass
 
     def get(self, word: str) -> np.float32:
         return np.float32(1)
 
 
 class IDFWordWeight(WordWeight):
-    def __init__(self, dataset: Dataset):
-        super().__init__(dataset)
+    def __init__(self):
+        self.idf = None
+
+    def initialize(self, dataset: Dataset):
         self.idf = IDFWordWeight._idf(dataset.get_docs())
 
     @staticmethod

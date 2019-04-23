@@ -1,3 +1,4 @@
+import sys
 import logging
 from datetime import datetime
 from pathlib import Path
@@ -12,10 +13,22 @@ from base.word_weight import WordWeight
 from base.sentence_splitter import SentenceSplitter
 from base.text_index import TextIndex
 
+from base.document import Document
+from base.sentence import Sentence
+
 class Interactor:
     DEFAULT_LOG_FOLDER = Path('logs')
 
-    def __init__(self):
+    def __init__(self, _dataset: Dataset, _embedding_model: EmbeddingModel, _embedding_index: EmbeddingIndex,
+                 _sentence_splitter: SentenceSplitter, _word_weights: WordWeight):
+        self.dataset: Dataset = _dataset
+        self.embedding_model: EmbeddingModel = _embedding_model
+        self.embedding_index: EmbeddingIndex = _embedding_index
+        self.sentence_splitter: SentenceSplitter = _sentence_splitter
+        self.word_weights: WordWeight = _word_weights
+
+        self.text_index: TextIndex = None
+
         self.logger = logging.getLogger(self.__class__.__name__)
         self.logger.setLevel(logging.INFO)
         self._create_log_handler()
@@ -33,24 +46,55 @@ class Interactor:
         file_handler.setFormatter(formatter)
         self.logger.addHandler(file_handler)
 
-    def interact(self):
+    def _initialize(self):
         self.logger.info('Loading dataset')
-        _dataset: Dataset = dataset.nips_papers
-        _dataset.load(sentence_splitter=sent_tokenize)
+        self.dataset.load(sentence_splitter=sent_tokenize)
 
         self.logger.info('Loading embedding model')
-        _embedding_model: EmbeddingModel = embedding_model.glove.load()
+        self.embedding_model.load()
 
         self.logger.info('Initializing word weights')
-        _word_weights: WordWeight = word_weight.idf_word_weight(_dataset)
+        self.word_weights.initialize(self.dataset)
 
         self.logger.info('Creating text index')
-        _text_index: TextIndex = TextIndex(_dataset, _embedding_model, embedding_index.knn(),
-                                           sentence_splitter.k_gram(5), _word_weights, self.logger)
-        _text_index.build()
+        self.text_index = TextIndex(self.dataset, self.embedding_model, self.embedding_index,
+                                    self.sentence_splitter, self.word_weights, self.logger)
+        self.text_index.build()
 
-        self.logger.info('Done')
+        self.logger.info('Initialization completed successfully')
+
+    def _process_input(self, text: str):
+        document = Document(text)
+        sentences = document.split_to_sentences(sent_tokenize)
+        for sentence in sentences:
+            parts = self.sentence_splitter.split(sentence)
+            for part in parts:
+                part = Sentence(sentence.get_tokens_by_indices(part))
+                response = self.text_index.search(part, neighbours=1)
+                for r in response:
+                    sys.stdout.write(f'{str(part)}   ->   {str(r)}\n')
+
+    def interact(self):
+        self._initialize()
+        while True:
+            sys.stdout.write('> ')
+            sys.stdout.flush()
+
+            text = sys.stdin.readline().strip()
+            if len(text) == 0:
+                continue
+
+            self._process_input(text)
+
 
 
 if __name__ == '__main__':
-    Interactor().interact()
+    Interactor(
+        _dataset=dataset.nips_papers,
+        _embedding_model=embedding_model.glove,
+        # _embedding_index=embedding_index.knn,
+        # _embedding_index=embedding_index.faiss,
+        _embedding_index=embedding_index.faiss_hnsw,
+        _sentence_splitter=sentence_splitter.five_gram,
+        _word_weights=word_weight.idf_word_weight
+    ).interact()

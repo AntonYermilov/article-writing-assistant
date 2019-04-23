@@ -44,7 +44,7 @@ class TextIndex:
         self._log('Creating embedding index')
         self.index.build(matrix)
 
-    def search(self, sentence: Sentence, neighbours: int = 1) -> np.ndarray:
+    def search(self, sentence: Sentence, neighbours: int = 1) -> np.array:
         query = self.model.sentence_embedding(sentence, self.weights)
         indices = self.index.search_by_vector(query, neighbours)
 
