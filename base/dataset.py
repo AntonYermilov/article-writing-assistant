@@ -45,4 +45,4 @@ class Dataset(ABC):
 class NIPSPapersDataset(Dataset):
     def _load(self) -> np.array:
         df = pd.read_csv(self.path, compression='gzip', sep=',')
-        return df['paper_text'].to_numpy().astype(np.str)[:100]
+        return df['paper_text'].to_numpy().astype(np.str)
