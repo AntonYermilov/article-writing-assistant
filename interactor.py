@@ -59,7 +59,7 @@ class Interactor:
         self.logger.info('Creating text index')
         self.text_index = TextIndex(self.dataset, self.embedding_model, self.embedding_index,
                                     self.sentence_splitter, self.word_weights, self.logger)
-        self.text_index.build()
+        self.text_index.build(index_file=Path('resources', 'index', 'v001'))
 
         self.logger.info('Initialization completed successfully')
 
