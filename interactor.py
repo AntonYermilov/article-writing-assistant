@@ -91,7 +91,7 @@ class Interactor:
 if __name__ == '__main__':
     Interactor(
         _dataset=dataset.nips_papers,
-        _embedding_model=embedding_model.glove,
+        _embedding_model=embedding_model.glove50,
         # _embedding_index=embedding_index.knn,
         _embedding_index=embedding_index.faiss,
         # _embedding_index=embedding_index.faiss_hnsw,

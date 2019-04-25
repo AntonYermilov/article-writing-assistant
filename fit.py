@@ -1,6 +1,6 @@
 import argparse
 from embedding import models
-from base import datasets
+from base import dataset
 import json
 
 
@@ -21,7 +21,7 @@ if __name__ == '__main__':
         raise ValueError(f'Model {model} does not exist!')
 
     corpus_name = config.corpus.lower()
-    if corpus_name not in datasets:
+    if corpus_name not in dataset:
         raise ValueError(f'Corpus {corpus_name} does not exist!')
 
     model_name = config.name

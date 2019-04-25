@@ -1,4 +1,4 @@
-from base import datasets
+from base import dataset
 from embedding.model import Model
 from pathlib import Path
 import subprocess
@@ -34,14 +34,14 @@ class Glove(Model):
         if not TEMP_FOLDER.exists():
             TEMP_FOLDER.mkdir()
 
-        if self.corpus_name not in datasets.keys():
+        if self.corpus_name not in dataset.keys():
             raise RuntimeError(f'Corpus {self.corpus_name} is not supported!')
 
         dataset_path = TEMP_FOLDER / 'dataset.txt'
         temp_model_path = TEMP_FOLDER / 'model.ss_decomp'
 
-        dataset = datasets[self.corpus_name].load()
-        dataset.save(dataset_path)
+        _dataset = dataset[self.corpus_name].load()
+        _dataset.save(dataset_path)
 
         out = subprocess.DEVNULL if not self.verbose else None
         params = ['java', '-Xmx8g', '-jar', str(self.jar_path),

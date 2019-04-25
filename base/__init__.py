@@ -16,7 +16,8 @@ embedding_index.faiss_hnsw = FaissHNSW()
 embedding_index.knn = KNN()
 
 embedding_model = AttributeDict()
-embedding_model.glove = GensimModel('glove.nips.50.vec')
+embedding_model.glove50 = GensimModel('glove.nips.50.vec')
+embedding_model.glove128 = GensimModel('glove.nips.50.vec')
 embedding_model.fasttext_en_300 = FastText('fasttext.en.300.vec', 'cc.en.300.vec.gz')
 
 word_weight = AttributeDict()
