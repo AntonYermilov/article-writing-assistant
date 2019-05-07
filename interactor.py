@@ -20,12 +20,15 @@ class Interactor:
     DEFAULT_LOG_FOLDER = Path('logs')
 
     def __init__(self, _dataset: Dataset, _embedding_model: EmbeddingModel, _embedding_index: EmbeddingIndex,
-                 _sentence_splitter: SentenceSplitter, _word_weights: WordWeight):
+                 _sentence_splitter: SentenceSplitter, _word_weights: WordWeight, _documents_limit: int,
+                 _text_index_bin: str):
         self.dataset: Dataset = _dataset
         self.embedding_model: EmbeddingModel = _embedding_model
         self.embedding_index: EmbeddingIndex = _embedding_index
         self.sentence_splitter: SentenceSplitter = _sentence_splitter
         self.word_weights: WordWeight = _word_weights
+        self.documents_limit: int = _documents_limit
+        self.text_index_bin: str = _text_index_bin
 
         self.text_index: TextIndex = None
 
@@ -48,7 +51,7 @@ class Interactor:
 
     def _initialize(self):
         self.logger.info('Loading dataset')
-        self.dataset.load(sentence_splitter=sent_tokenize)
+        self.dataset.load(sentence_splitter=sent_tokenize, documents_limit=self.documents_limit)
 
         self.logger.info('Loading embedding model')
         self.embedding_model.load()
@@ -59,7 +62,7 @@ class Interactor:
         self.logger.info('Creating text index')
         self.text_index = TextIndex(self.dataset, self.embedding_model, self.embedding_index,
                                     self.sentence_splitter, self.word_weights, self.logger)
-        self.text_index.build(index_filename='v001')
+        self.text_index.build(self.text_index_bin)
 
         self.logger.info('Initialization completed successfully')
 
@@ -67,6 +70,8 @@ class Interactor:
         document = Document(text)
         sentences = document.split_to_sentences(sent_tokenize)
         for sentence in sentences:
+            if len(sentence) < 5:
+                continue
             parts = self.sentence_splitter.split(sentence)
             for part in parts:
                 part = Sentence(sentence.get_tokens_by_indices(part))
@@ -77,8 +82,8 @@ class Interactor:
     def interact(self):
         self._initialize()
         while True:
-            sys.stdout.write('> ')
-            sys.stdout.flush()
+            sys.stderr.write('> ')
+            sys.stderr.flush()
 
             text = sys.stdin.readline().strip()
             if len(text) == 0:
@@ -87,14 +92,17 @@ class Interactor:
             self._process_input(text)
 
 
-
 if __name__ == '__main__':
-    Interactor(
-        _dataset=dataset.nips_papers,
-        _embedding_model=embedding_model.glove50,
-        # _embedding_index=embedding_index.knn,
-        _embedding_index=embedding_index.faiss,
-        # _embedding_index=embedding_index.faiss_hnsw,
-        _sentence_splitter=sentence_splitter.five_gram,
-        _word_weights=word_weight.idf_word_weight
-    ).interact()
+    with open('interactor_output.txt', 'a') as out:
+        sys.stdout = out
+        Interactor(
+            _dataset=dataset.nips_papers,
+            _embedding_model=embedding_model.glove50,
+            # _embedding_index=embedding_index.knn,
+            # _embedding_index=embedding_index.faiss,
+            _embedding_index=embedding_index.hnsw,
+            _sentence_splitter=sentence_splitter.five_gram,
+            _word_weights=word_weight.idf_word_weight,
+            _documents_limit=1000,
+            _text_index_bin='nips_1000doc_glove128_v1.bin'
+        ).interact()

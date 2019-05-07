@@ -1,5 +1,5 @@
 from tools import AttributeDict
-from .embedding_index import Faiss, KNN, FaissHNSW
+from .embedding_index import Faiss, KNN, HNSW
 from .embedding_model import GensimModel, FastText
 from .dataset import NIPSPapersDataset
 from .word_weight import StandardWordWeight, IDFWordWeight
@@ -12,12 +12,12 @@ dataset.nips_papers = NIPSPapersDataset('nips-papers.csv.gz')
 
 embedding_index = AttributeDict()
 embedding_index.faiss = Faiss()
-embedding_index.faiss_hnsw = FaissHNSW()
+embedding_index.hnsw = HNSW()
 embedding_index.knn = KNN()
 
 embedding_model = AttributeDict()
 embedding_model.glove50 = GensimModel('glove.nips.50.vec')
-embedding_model.glove128 = GensimModel('glove.nips.50.vec')
+embedding_model.glove128 = GensimModel('glove.nips.128.vec')
 embedding_model.fasttext_en_300 = FastText('fasttext.en.300.vec', 'cc.en.300.vec.gz')
 
 word_weight = AttributeDict()

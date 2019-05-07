@@ -19,9 +19,9 @@ class Dataset(ABC):
         self.documents = None
         self.sentences = None
 
-    def load(self, sentence_splitter: Callable = sent_tokenize):
+    def load(self, sentence_splitter: Callable = sent_tokenize, documents_limit: int = None):
         # noinspection PyTypeChecker
-        self.documents = np.array([Document(document, normalize=True) for document in self._load()])
+        self.documents = np.array([Document(document, normalize=True) for document in self._load(documents_limit)])
         self.sentences = np.hstack([document.split_to_sentences(sentence_splitter)
                                    for document in self.documents]).astype(Sentence)
         return self
@@ -33,7 +33,7 @@ class Dataset(ABC):
                 out.write(' ')
 
     @abstractmethod
-    def _load(self) -> np.array:
+    def _load(self, documents_limit: int = None) -> np.array:
         pass
 
     def get_docs(self) -> np.array:
@@ -47,6 +47,9 @@ class Dataset(ABC):
 
 
 class NIPSPapersDataset(Dataset):
-    def _load(self) -> np.array:
+    def _load(self, documents_limit: int = None) -> np.array:
         df = pd.read_csv(self.path, compression='gzip', sep=',')
-        return df['paper_text'].to_numpy().astype(np.str)
+        docs = df['paper_text'].to_numpy().astype(np.str)
+        random = np.random.RandomState(13)
+        random.shuffle(docs)
+        return docs if documents_limit is None else docs[:documents_limit]

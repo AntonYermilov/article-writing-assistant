@@ -3,6 +3,7 @@ from abc import ABC, abstractmethod
 
 import numpy as np
 import faiss
+import nmslib
 
 
 class EmbeddingIndex(ABC):
@@ -66,6 +67,29 @@ class Faiss(EmbeddingIndex):
         return self.index.search(vector.reshape(1, -1), neighbours)[1][0]
 
 
+class HNSW(EmbeddingIndex):
+    def __init__(self):
+        super().__init__()
+        self.index = None
+
+    def build(self, index_file: Path, dim: int):
+        self.dim = dim
+        self.index_file = index_file
+
+        matrix = np.memmap(index_file, dtype=np.float32, mode='r+')
+        matrix = matrix.reshape((-1, dim))
+
+        self.index = nmslib.init(space='cosinesimil', method='sw-graph')
+        nmslib.addDataPointBatch(self.index, np.arange(matrix.shape[0], dtype=np.int32), matrix)
+        self.index.createIndex({}, print_progress=True)
+
+    def search_by_matrix(self, matrix: np.array, neighbours: int = 1):
+        return np.array([self.search_by_vector(vector, neighbours) for vector in matrix])
+
+    def search_by_vector(self, vector: np.array, neighbours: int = 1):
+        return nmslib.knnQuery(self.index, neighbours, vector)
+
+"""
 class FaissHNSW(EmbeddingIndex):
     def __init__(self):
         super().__init__()
@@ -93,3 +117,4 @@ class FaissHNSW(EmbeddingIndex):
     def search_by_vector(self, vector: np.array, neighbours: int = 1) -> np.array:
         # noinspection PyArgumentList
         return self.index.search(vector.reshape(1, -1), neighbours)[1][0]
+"""
