@@ -70,7 +70,7 @@ class Interactor:
         document = Document(text)
         sentences = document.split_to_sentences(sent_tokenize)
         for sentence in sentences:
-            response = self.text_index.search(sentence, neighbours=3, splitter_neighbours=10)
+            response = self.text_index.search(sentence, neighbours=5, splitter_neighbours=10)
             if response is None:
                 continue
             for r in response:
@@ -80,8 +80,8 @@ class Interactor:
     def interact(self):
         self._initialize()
         while True:
-            sys.stderr.write('> ')
-            sys.stderr.flush()
+            sys.stdout.write('> ')
+            sys.stdout.flush()
 
             text = sys.stdin.readline().strip()
             if len(text) == 0:
@@ -96,7 +96,7 @@ if __name__ == '__main__':
         _embedding_model=embedding_model.glove128,
         # _embedding_index=embedding_index.knn,
         # _embedding_index=embedding_index.faiss,
-        _embedding_index=embedding_index.hnsw,
+        _embedding_index=embedding_index.nsw,
         _sentence_splitter=sentence_splitter.five_gram,
         _word_weights=word_weight.idf_word_weight,
         _documents_limit=1000,

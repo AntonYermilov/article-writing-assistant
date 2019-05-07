@@ -81,11 +81,19 @@ class TextIndex:
         ])
 
         indices = self.index.search_by_matrix(query, splitter_neighbours)
-        inv_indices, indices = np.unique(indices.flatten(), return_inverse=True)
+        sentence_indices = np.array([self.sentences[ind,0] for ind in indices.flatten()])
+        inv_indices, sentence_indices = np.unique(sentence_indices, return_inverse=True)
 
-        bins = np.bincount(indices)
-        most_frequent_indices = inv_indices[np.argsort(bins)[:-(neighbours+1):-1]]
+        bins = np.bincount(sentence_indices)
+        bin_args = np.argsort(bins)[:-(neighbours+1):-1]
+        most_frequent_indices = inv_indices[bin_args]
 
-        sentence_indices = np.array([self.sentences[i,0] for i in most_frequent_indices])
-        response = self.dataset.get_sentences()[sentence_indices]
+        _newline, _space = '\n', ' '
+        self.logger.info(f'Input sentence: {str(sentence).replace(_newline, _space)}')
+        self.logger.info(f'Nearest sentences: {str(inv_indices[inv_indices]).replace(_newline, _space)}')
+        self.logger.info(f'Number of occurrences in sentences: {str(bins).replace(_newline, _space)}')
+        self.logger.info(f'Best sentences: {str(inv_indices[bin_args]).replace(_newline, _space)}')
+        self.logger.info(f'Number of occurrences in best sentences: {str(bins[bin_args]).replace(_newline, _space)}')
+
+        response = self.dataset.get_sentences()[most_frequent_indices]
         return response
