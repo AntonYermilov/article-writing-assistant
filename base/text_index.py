@@ -90,7 +90,7 @@ class TextIndex:
 
         _newline, _space = '\n', ' '
         self.logger.info(f'Input sentence: {str(sentence).replace(_newline, _space)}')
-        self.logger.info(f'Nearest sentences: {str(inv_indices[inv_indices]).replace(_newline, _space)}')
+        self.logger.info(f'Nearest sentences: {str(inv_indices).replace(_newline, _space)}')
         self.logger.info(f'Number of occurrences in sentences: {str(bins).replace(_newline, _space)}')
         self.logger.info(f'Best sentences: {str(inv_indices[bin_args]).replace(_newline, _space)}')
         self.logger.info(f'Number of occurrences in best sentences: {str(bins[bin_args]).replace(_newline, _space)}')
