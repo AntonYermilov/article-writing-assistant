@@ -1,5 +1,5 @@
 from tools import AttributeDict
-from .embedding_index import Faiss, KNN, HNSW
+from .embedding_index import Faiss, KNN, NSW, HNSW
 from .embedding_model import GensimModel, FastText
 from .dataset import NIPSPapersDataset
 from .word_weight import StandardWordWeight, IDFWordWeight
@@ -12,6 +12,7 @@ dataset.nips_papers = NIPSPapersDataset('nips-papers.csv.gz')
 
 embedding_index = AttributeDict()
 embedding_index.faiss = Faiss()
+embedding_index.nsw = NSW()
 embedding_index.hnsw = HNSW()
 embedding_index.knn = KNN()
 

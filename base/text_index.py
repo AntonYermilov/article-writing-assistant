@@ -71,14 +71,21 @@ class TextIndex:
         self._log('Creating embedding index')
         self.index.build(index_file, self.model.dim())
 
-    def search(self, sentence: Sentence, neighbours: int = 1) -> np.array:
-        query = self.model.sentence_embedding(sentence, self.weights)
-        indices = self.index.search_by_vector(query, neighbours)
+    def search(self, sentence: Sentence, neighbours: int = 1, splitter_neighbours: int = 10) -> np.array:
+        sentence_parts = self.splitter.split(sentence)
+        if sentence_parts is None:
+            return None
 
-        response = []
-        for i in indices:
-            row = self.sentences[i]
-            sentence_num, tokens = row[0], row[1:]
-            sentence = self.dataset.get_sentences()[sentence_num]
-            response.append(Sentence(sentence.get_tokens_by_indices(tokens)))
-        return np.array(response, dtype=Sentence)
+        query = np.array([
+            self.model.word_list_embedding(sentence.get_tokens_by_indices(part), self.weights) for part in sentence_parts
+        ])
+
+        indices = self.index.search_by_matrix(query, splitter_neighbours)
+        inv_indices, indices = np.unique(indices.flatten(), return_inverse=True)
+
+        bins = np.bincount(indices)
+        most_frequent_indices = inv_indices[np.argsort(bins)[:-(neighbours+1):-1]]
+
+        sentence_indices = np.array([self.sentences[i,0] for i in most_frequent_indices])
+        response = self.dataset.get_sentences()[sentence_indices]
+        return response

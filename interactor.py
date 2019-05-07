@@ -70,14 +70,12 @@ class Interactor:
         document = Document(text)
         sentences = document.split_to_sentences(sent_tokenize)
         for sentence in sentences:
-            if len(sentence) < 5:
+            response = self.text_index.search(sentence, neighbours=3, splitter_neighbours=10)
+            if response is None:
                 continue
-            parts = self.sentence_splitter.split(sentence)
-            for part in parts:
-                part = Sentence(sentence.get_tokens_by_indices(part))
-                response = self.text_index.search(part, neighbours=1)
-                for r in response:
-                    sys.stdout.write(f'{str(part)}   ->   {str(r)}\n')
+            for r in response:
+                sys.stdout.write(f'{str(sentence)}   ->   {str(r)}\n')
+                sys.stdout.flush()
 
     def interact(self):
         self._initialize()
@@ -93,16 +91,14 @@ class Interactor:
 
 
 if __name__ == '__main__':
-    with open('interactor_output.txt', 'a') as out:
-        sys.stdout = out
-        Interactor(
-            _dataset=dataset.nips_papers,
-            _embedding_model=embedding_model.glove50,
-            # _embedding_index=embedding_index.knn,
-            # _embedding_index=embedding_index.faiss,
-            _embedding_index=embedding_index.hnsw,
-            _sentence_splitter=sentence_splitter.five_gram,
-            _word_weights=word_weight.idf_word_weight,
-            _documents_limit=1000,
-            _text_index_bin='nips_1000doc_glove128_v1.bin'
-        ).interact()
+    Interactor(
+        _dataset=dataset.nips_papers,
+        _embedding_model=embedding_model.glove128,
+        # _embedding_index=embedding_index.knn,
+        # _embedding_index=embedding_index.faiss,
+        _embedding_index=embedding_index.hnsw,
+        _sentence_splitter=sentence_splitter.five_gram,
+        _word_weights=word_weight.idf_word_weight,
+        _documents_limit=1000,
+        _text_index_bin='nips_1000doc_glove128_v1.bin'
+    ).interact()

@@ -14,9 +14,6 @@ MODEL_FOLDER = Path('resources', 'models')
 
 
 class EmbeddingModel(ABC):
-    def __init__(self):
-        self.logger = None
-
     @abstractmethod
     def load(self):
         pass
@@ -35,7 +32,7 @@ class EmbeddingModel(ABC):
     def word_list_embedding(self, word_list: np.array, word_weight: WordWeight) -> np.array:
         return self.sentence_embedding(Sentence(word_list), word_weight)
 
-    def word_embeddings_from_sentence(self, sentence: Sentence) -> np.ndarray:
+    def word_embeddings_from_sentence(self, sentence: Sentence) -> np.array:
         tokens = sentence.get_tokens_by_indices(sentence.get_alphabetic_tokens())
         return np.array([self.word_embedding(token) for token in tokens], dtype=np.float)
 
