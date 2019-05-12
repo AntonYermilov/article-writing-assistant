@@ -49,7 +49,7 @@ class Dataset(ABC):
 class NIPSPapersDataset(Dataset):
     def _load(self, documents_limit: int = None) -> np.array:
         df = pd.read_csv(self.path, compression='gzip', sep=',')
-        docs = df['paper_text'].to_numpy().astype(np.str)
+        docs = df['paper_text'].values.astype(np.str)
         random = np.random.RandomState(13)
         random.shuffle(docs)
         return docs if documents_limit is None else docs[:documents_limit]

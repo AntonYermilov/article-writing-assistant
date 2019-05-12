@@ -7,14 +7,14 @@ from nltk.tokenize import sent_tokenize
 
 from base import dataset, embedding_index, embedding_model, word_weight, sentence_splitter
 from base.dataset import Dataset
+from base.document import Document
 from base.embedding_index import EmbeddingIndex
 from base.embedding_model import EmbeddingModel
 from base.word_weight import WordWeight
 from base.sentence_splitter import SentenceSplitter
 from base.text_index import TextIndex
+from evaluation.metrics import bleu_on_corpus
 
-from base.document import Document
-from base.sentence import Sentence
 
 class Interactor:
     DEFAULT_LOG_FOLDER = Path('logs')
@@ -79,6 +79,7 @@ class Interactor:
 
     def interact(self):
         self._initialize()
+        print(f"Bleu on corpus: {bleu_on_corpus(self.text_index.dataset.get_sentences(), self.text_index)}")
         while True:
             sys.stdout.write('> ')
             sys.stdout.flush()
@@ -99,6 +100,6 @@ if __name__ == '__main__':
         _embedding_index=embedding_index.nsw,
         _sentence_splitter=sentence_splitter.five_gram,
         _word_weights=word_weight.idf_word_weight,
-        _documents_limit=1000,
-        _text_index_bin='nips_1000doc_glove128_v1.bin'
+        _documents_limit=100,
+        _text_index_bin='nips_100doc_glove128_v1.bin'
     ).interact()

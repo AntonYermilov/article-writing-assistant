@@ -81,7 +81,7 @@ class TextIndex:
         ])
 
         indices = self.index.search_by_matrix(query, splitter_neighbours)
-        sentence_indices = np.array([self.sentences[ind,0] for ind in indices.flatten()])
+        sentence_indices = np.array([self.sentences[ind, 0] for ind in indices.flatten()])
         inv_indices, sentence_indices = np.unique(sentence_indices, return_inverse=True)
 
         bins = np.bincount(sentence_indices)
