@@ -177,6 +177,29 @@ class KGramInteractor:
 
             self._process_input(text)
 
+    def process_text(self, src: Path, dst: Path):
+        self._initialize()
+        with src.open('r') as inp, dst.open('w') as outp:
+            document = Document(inp.read())
+            sentences = document.split_to_sentences(sent_tokenize)
+            for sentence in sentences:
+                try:
+                    response = self.text_index.search(sentence, neighbours=2)
+                    if response is None:
+                        continue
+
+                    sentence = sentence.get_tokens_by_indices(sentence.get_alphabetic_tokens())
+                    for word in sentence:
+                        outp.write(f'{word} ')
+                    outp.write('\n')
+
+                    for r in response:
+                        outp.write(f'{r:0.8f} ')
+                    outp.write('\n')
+
+                    outp.flush()
+                except:
+                    pass
 
 if __name__ == '__main__':
     """
