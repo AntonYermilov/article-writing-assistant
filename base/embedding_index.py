@@ -3,7 +3,7 @@ from abc import ABC, abstractmethod
 
 import numpy as np
 import faiss
-import nmslib
+import nmsbind as nmslib
 
 
 class EmbeddingIndex(ABC):

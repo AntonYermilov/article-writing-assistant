@@ -1,4 +1,5 @@
-nmslib
+colr
+nmsbind
 nltk
 allennlp
 numpy
@@ -8,3 +9,4 @@ pandas
 faiss-prebuilt
 requests
 gensim
+torch

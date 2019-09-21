@@ -3,7 +3,7 @@ from pathlib import Path
 import numpy as np
 
 from gensim.models import KeyedVectors
-from allennlp.commands.elmo import ElmoEmbedder
+# from allennlp.commands.elmo import ElmoEmbedder
 
 from tools.downloader import download_gz
 from .sentence import Sentence
